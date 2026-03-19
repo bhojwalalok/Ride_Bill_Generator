@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rapido Bill Generator</title>
+    <script>
+        async function downloadPDF() {
+
+            const { jsPDF } = window.jspdf;
+
+            let bill = document.getElementById("billPage");
+
+            // 👉 Buttons hide karo
+            let buttons = bill.querySelectorAll("button");
+            buttons.forEach(btn => btn.style.display = "none");
+
+            // 👉 Screenshot lo
+            const canvas = await html2canvas(bill, {
+                scale: 2,
+                useCORS: true
+            });
+
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            const imgWidth = 210;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+            pdf.save("Rapido_Bill.pdf");
+
+            // 👉 Buttons wapas dikhao
+            buttons.forEach(btn => btn.style.display = "inline-block");
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page {
+            width: 750px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #ffcc00;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logofix {
+            float: right;
+        }
+
+        .header img {
+            width: 80px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 15px;
+        }
+
+        .price-box {
+            text-align: center;
+            /* /* border: 1px solid #ddd;  */
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgb(248, 248, 248);
+
+        }
+
+        .price-box h1 {
+            margin: 0;
+            font-size: 40px;
+        }
+
+        /* ------------------ NEW LOCATION STYLE ------------------ */
+
+        .location-box {
+            background: #e9e8e8;
+            padding: 15px;
+            border-radius: auto;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px 0;
+        }
+
+        .location-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .dot::after {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+        }
+
+        .green {
+            background: #42b72a;
+        }
+
+        .red {
+            background: #e63946;
+        }
+
+        .vertical-line {
+            width: 2px;
+            background: #d9d9d9;
+            height: 30px;
+            margin-left: 6px;
+            margin-top: -5px;
+            margin-bottom: -5px;
+        }
+
+        .location-text {
+            margin: 0;
+            font-size: 15px;
+            line-height: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* -------------------------------------------------------- */
+
+        .footer {
+            font-size: 12px;
+            margin-top: 30px;
+            line-height: 20px;
+            color: #444;
+        }
+
+        /*dots problem */
+        @media print {
+
+            /* Print me Print Bill & Edit Details button hide karo */
+            button {
+                display: none !important;
+            }
+
+            /* Location dots print me show ho */
+            .dot {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .dot::after {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Background colors bhi print me visible hon */
+            .location-box,
+            .vertical-line {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /*footer problem*/
+        @page {
+            margin: 10mm;
+        }
+
+        @media print {
+            .page {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+</head>
+
+<body>
+
+    <!-- PAGE 1 : USER INPUT -->
+    <div id="inputPage" class="page">
+        <h2>Enter Ride Details</h2>
+
+        <input id="uName" placeholder="Customer Name">
+        <input id="rideId" placeholder="Ride ID">
+        <input id="driverName" placeholder="Driver Name">
+        <input id="vehicleNumber" placeholder="Vehicle Number">
+
+        <select id="modeVehicle">
+            <option>Bike</option>
+            <option>Car</option>
+            <option>Auto</option>
+        </select>
+
+        <input id="rideTime" placeholder="Ride Time (e.g., Nov 4th 2025, 5:50 AM)">
+        <input id="price" placeholder="Price (₹)">
+        <input id="pickup" placeholder="Pickup Location">
+        <input id="drop" placeholder="Drop Location">
+
+        <button onclick="openBillPage()">Generate Bill</button>
+    </div>
+
+    <!-- PAGE 2 : BILL PAGE -->
+    <div id="billPage" class="page" style="display:none;">
+
+        <div class="header">
+            <h2>Booking History</h2>
+            <img class="logofix" src="rapido1.png">
+        </div>
+
+        <div class="row"><span>Customer Name</span><span id="bName"></span></div>
+        <div class="row"><span>Ride ID</span><span id="bRideId"></span></div>
+        <div class="row"><span>Driver Name</span><span id="bDriver"></span></div>
+        <div class="row"><span>Vehicle Number</span><span id="bVehicle"></span></div>
+        <div class="row"><span>Mode of Vehicle</span><span id="bMode"></span></div>
+        <div class="row"><span>Time of Ride</span><span id="bTime"></span></div>
+
+
+
+        <div class="price-box">
+            <div>Selected Price</div>
+            <h1 id="bPrice"></h1>
+        </div>
+
+        <!-- NEW LOCATION STRUCTURE -->
+        <div class="location-box">
+
+            <div class="location-item">
+                <div class="dot green"></div>
+                <p class="location-text" id="bPickup"></p>
+            </div>
+
+            <div class="vertical-line"></div>
+
+            <div class="location-item">
+                <div class="dot red"></div>
+                <p class="location-text" id="bDrop"></p>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            This document is issued on request by the passenger. Rapido does not collect any fee/commission from
+            passengers and shall not issue tax<br>
+            invoices to the passengers under this segment. The document may be used for all official / reimbursement
+            purposes.<br><br>
+            *Selected Price refers to the initial price decided between User and Drivers from the estimated price range
+        </div>
+
+        <button onclick="downloadPDF()">Download PDF</button>
+        <button onclick="editDetails()">Edit Details</button>
+
+    </div>
+
+    <script>
+        function openBillPage() {
+
+            document.getElementById('bName').innerText = document.getElementById('uName').value;
+            document.getElementById('bRideId').innerText = document.getElementById('rideId').value;
+            document.getElementById('bDriver').innerText = document.getElementById('driverName').value;
+            document.getElementById('bVehicle').innerText = document.getElementById('vehicleNumber').value;
+            document.getElementById('bMode').innerText = document.getElementById('modeVehicle').value;
+            document.getElementById('bTime').innerText = document.getElementById('rideTime').value;
+            document.getElementById('bPrice').innerText = "₹ " + document.getElementById('price').value;
+
+            /* LOCATION INPUT */
+            document.getElementById('bPickup').innerText = document.getElementById('pickup').value;
+            document.getElementById('bDrop').innerText = document.getElementById('drop').value;
+
+            /* SWITCH PAGE */
+            document.getElementById('inputPage').style.display = "none";
+            document.getElementById('billPage').style.display = "block";
+        }
+        /*Re-enter your detail*/
+        function editDetails() {
+            document.getElementById('billPage').style.display = "none";
+            document.getElementById('inputPage').style.display = "block";
+        }
+
+    </script>
+
+</body>
+
+</html>
